@@ -1,0 +1,71 @@
+categoria,bodega,nombre,varietal,ml,precio,activo,promo_grupo,promo_cant,promo_precio
+Tintos,Vincent,Vincent Cabernet Sauvignon,Cabernet Sauvignon,750,5500,si,vincent,3,15000
+Tintos,Vincent,Vincent Malbec,Malbec,750,5500,si,vincent,3,15000
+Tintos,Crotta,Familia Crotta Bonarda-Malbec,Bonarda · Malbec,750,7000,si
+Tintos,Crotta,Comienzos Bonarda,Bonarda,750,7800,si
+Tintos,Crotta,Comienzos Cabernet Sauvignon,Cabernet Sauvignon,750,7800,si
+Tintos,Crotta,Comienzos Malbec,Malbec,750,7800,si
+Tintos,Crotta,Comienzos Tempranillo,Tempranillo,750,7800,si
+Tintos,Crotta,Crotta Malbec,Malbec,750,7800,si
+Tintos,Crotta,Familia Crotta Bonarda-Malbec,Bonarda · Malbec,375,8000,si
+Tintos,Crotta,Comienzos Virtudes Blend,Blend,750,8200,si
+Tintos,Crotta,Familia Crotta Malbec,Malbec,750,10900,si
+Tintos,Crotta,Comienzos Cabernet Franc,Cabernet Franc,750,11700,si
+Tintos,Crotta,Gran Reserva Malbec,Malbec,750,13200,si
+Tintos,Cuatro Fincas,Cuatro Fincas Cabernet-Merlot,Cabernet · Merlot,750,8000,si
+Tintos,Cuatro Fincas,Cuatro Fincas Malbec-Syrah,Malbec · Syrah,750,8000,si
+Tintos,Alfredo Roca,Fincas Cabernet Sauvignon,Cabernet Sauvignon,375,9100,si
+Tintos,Alfredo Roca,Fincas Malbec,Malbec,375,9100,si
+Tintos,Alfredo Roca,Roca Malbec Merlot,Malbec · Merlot,750,10900,si
+Tintos,Alfredo Roca,Fincas Cabernet Sauvignon,Cabernet Sauvignon,750,14000,si
+Tintos,Alfredo Roca,Fincas Malbec,Malbec,750,14000,si
+Tintos,Alfredo Roca,Fincas Merlot,Merlot,750,14000,si
+Tintos,Alfredo Roca,Fincas Pinot Noir,Pinot Noir,750,14000,si
+Tintos,Alfredo Roca,Fincas Syrah,Syrah,750,14000,si
+Tintos,Alfredo Roca,Alma Inquieta Blend,Blend,750,19400,si
+Tintos,Alfredo Roca,Alma Inquieta Cabernet Franc,Cabernet Franc,750,19400,si
+Tintos,Alfredo Roca,Alma Inquieta Cabernet Sauvignon,Cabernet Sauvignon,750,19400,si
+Tintos,Alfredo Roca,Reserva de Familia Cabernet Franc,Cabernet Franc,750,38800,si
+Tintos,Alfredo Roca,Reserva de Familia Malbec,Malbec,750,38800,si
+Tintos,Alfredo Roca,Reserva de Familia Pinot Noir,Pinot Noir,750,38800,si
+Tintos,Alfredo Roca,Reserva de Familia Tempranillo,Tempranillo,750,38800,si
+Tintos,Alfredo Roca,Te Amo Blend,Blend,750,46600,si
+Tintos,Raíces Argentinas,Raíces Argentinas Cabernet Sauvignon,Cabernet Sauvignon,750,9800,si
+Tintos,Raíces Argentinas,Raíces Argentinas Malbec,Malbec,750,9800,si
+Tintos,Raíces Argentinas,Raíces Argentinas Malbec Bourbon,Malbec Bourbon,750,11200,si
+Tintos,Duret,Duret Cabernet,Cabernet Sauvignon,750,10500,si
+Tintos,Duret,Duret Malbec,Malbec,750,10500,si
+Tintos,Staphyle,Partida Limitada Cabernet Franc,Cabernet Franc,750,16100,si
+Tintos,Staphyle,Dragón de Vino Malbec,Malbec,750,19900,si
+Tintos,Staphyle,Microterroirs VF Malbec,Malbec,750,33300,si
+Blancos,Vincent,Vincent Blanco Dulce,Blanco Dulce,750,5500,si,vincent,3,15000
+Blancos,Vincent,Vincent Torrontés,Torrontés,750,5500,si,vincent,3,15000
+Blancos,Crotta,Familia Crotta Chenin-Ugni Blanc,Chenin · Ugni Blanc,750,6600,si
+Blancos,Crotta,Familia Crotta Chenin-Ugni Blanc,Chenin · Ugni Blanc,375,7200,si
+Blancos,Alfredo Roca,Fincas Chardonnay,Chardonnay,375,9100,si
+Blancos,Alfredo Roca,Roca Chenin Chardonnay,Chenin · Chardonnay,750,10900,si
+Blancos,Alfredo Roca,Fincas Chardonnay,Chardonnay,750,14000,si
+Blancos,Alfredo Roca,Fincas Chenin,Chenin,750,14000,si
+Blancos,Alfredo Roca,Fincas Sauvignon Blanc,Sauvignon Blanc,750,14000,si
+Blancos,Alfredo Roca,Fincas Tocai,Tocai,750,14000,si
+Blancos,Alfredo Roca,Fincas Torrontés,Torrontés,750,14000,si
+Blancos,Alfredo Roca,White Malbec,Malbec Blanco,750,19400,si
+Blancos,Alfredo Roca,Reserva de Familia Chardonnay / Pinot Noir,Chardonnay · Pinot Noir,750,38800,si
+Blancos,Duret,Duret Blanco Dulce Natural,Blanco Dulce Natural,750,12100,si
+Rosados,Vincent,Vincent Rosado Dulce,Rosado Dulce,750,5500,si,vincent,3,15000
+Rosados,Crotta,Comienzos Rosado,Rosado,750,7800,si
+Rosados,Alfredo Roca,Fincas Rosé,Rosé,750,13200,si
+Espumantes,Cuatro Fincas,Cuatro Fincas Extra Brut,Extra Brut,750,10500,si
+Espumantes,Alfredo Roca,Roca Espumante Dulce Natural,Dulce Natural,750,11700,si
+Espumantes,Alfredo Roca,Alma Inquieta Extra Brut,Extra Brut,750,16700,si
+Espumantes,Alfredo Roca,Espumante Dulce Natural,Dulce Natural,750,16700,si
+Espumantes,Alfredo Roca,Cuvée Especial Brut Nature,Brut Nature,750,19400,si
+Espumantes,Alfredo Roca,Nuiri Pinot Noir Brut Nature,Pinot Noir · Brut Nature,750,25200,si
+Espumantes,Alfredo Roca,Nuri Rosado,Rosado,750,35000,si
+Generosos,Crotta,Moscato,Moscato,930,10100,si
+Generosos,Crotta,Moscato,Moscato,375,10900,si
+Generosos,Crotta,Mistela,Mistela,750,12400,si
+Generosos,Crotta,Tarde,Generoso,500,12400,si
+Generosos,Crotta,Mistela D'Oro,Mistela,750,12800,si
+Generosos,Crotta,Marsala,Marsala,750,13000,si
+Generosos,Crotta,Vermouth,Vermut,750,15500,si
