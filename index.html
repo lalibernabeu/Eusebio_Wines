@@ -105,6 +105,17 @@
       color: var(--crema)
     }
 
+    .tabs button.tab-promo {
+      border-color: var(--bordo);
+      color: var(--bordo);
+      font-weight: 600
+    }
+
+    .tabs button.tab-promo.on {
+      background: var(--bordo);
+      color: var(--crema)
+    }
+
     .filtros {
       display: flex;
       gap: 8px;
@@ -141,7 +152,7 @@
 
     .row {
       display: grid;
-      grid-template-columns: 30px 1fr auto;
+      grid-template-columns: 44px 1fr auto;
       gap: 14px;
       align-items: center;
       padding: 14px 0;
@@ -149,9 +160,24 @@
     }
 
     .b {
+      width: 44px;
+      height: 68px;
+      justify-self: center;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .b svg {
       width: 18px;
-      height: 62px;
-      justify-self: center
+      height: 62px
+    }
+
+    .b .foto {
+      max-width: 44px;
+      max-height: 68px;
+      object-fit: contain;
+      border-radius: 3px
     }
 
     .nom {
@@ -299,10 +325,69 @@
     .li {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
-      padding: 9px 0;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
       border-bottom: 1px solid var(--linea);
       font-size: 14px
+    }
+
+    .li-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .li-info b {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.2
+    }
+
+    .li-info small {
+      color: var(--oliva);
+      font-size: 12px
+    }
+
+    .li-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .st.st-sm {
+      margin-top: 0;
+      gap: 6px
+    }
+
+    .st.st-sm button {
+      width: 26px;
+      height: 26px;
+      font-size: 15px
+    }
+
+    .li-sub {
+      font-weight: 600;
+      font-size: 14px;
+      min-width: 60px;
+      text-align: right;
+      color: var(--bordo)
+    }
+
+    .del {
+      background: none;
+      border: 0;
+      color: #999;
+      font-size: 17px;
+      line-height: 1;
+      padding: 4px 6px;
+      cursor: pointer;
+      border-radius: 4px
+    }
+
+    .del:hover {
+      color: var(--bordo);
+      background: rgba(91, 30, 42, .08)
     }
 
     .li.d {
@@ -390,34 +475,71 @@
     let P = [], cat = '', cart = {};
     try { cart = JSON.parse(localStorage.getItem('eusebio-pedido') || '{}'); } catch (e) { }
 
+    function getImgUrl(url) {
+      if (!url) return '';
+      url = url.trim();
+      const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (m) {
+        return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`;
+      }
+      return url;
+    }
+
     fetch(SHEET_URL || 'productos.csv').then(r => r.text()).then(t => {
       P = t.trim().split(/\r?\n/).slice(1).map(l => {
-        const c = l.split(',').map(s => s.trim());
-        return { cat: c[0], bod: c[1], nom: c[2], var: c[3], ml: +c[4], pre: +c[5], on: (c[6] || 'si').toLowerCase() !== 'no', pg: c[7], pc: +c[8] || 0, pp: +c[9] || 0, k: c[2] + '|' + c[4] };
+        const c = l.split(',').map(s => s.replace(/^"|"$/g, '').trim());
+        const pc = +c[8] || 0;
+        const pp = +c[9] || 0;
+        const pg = c[7] || (pc && pp ? c[2] + '|' + c[4] : '');
+        return {
+          cat: c[0] || '',
+          bod: c[1] || '',
+          nom: c[2] || '',
+          var: c[3] || '',
+          ml: +c[4] || 750,
+          pre: +c[5] || 0,
+          on: (c[6] || 'si').toLowerCase() !== 'no',
+          pg: pg,
+          pc: pc,
+          pp: pp,
+          img: c[10] || '',
+          k: (c[2] || '') + '|' + (c[4] || '')
+        };
       }).filter(p => p.on && p.nom);
       cat = P[0].cat;
       const cats = [...new Set(P.map(p => p.cat))];
-      $('#tabs').innerHTML = cats.map(c => `<button data-cat="${esc(c)}">${esc(c)}</button>`).join('');
-      $('#bod').innerHTML += [...new Set(P.map(p => p.bod))].map(b => `<option>${esc(b)}</option>`).join('');
+      const hayPromos = P.some(p => p.pc > 0 && p.pp > 0);
+      const promoBtn = hayPromos ? `<button data-cat="PROMOS" class="tab-promo">🔥 Promos</button>` : '';
+      $('#tabs').innerHTML = promoBtn + cats.map(c => `<button data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+      $('#bod').innerHTML = '<option value="">Todas las bodegas</option>' + [...new Set(P.map(p => p.bod))].map(b => `<option>${esc(b)}</option>`).join('');
       pintar();
     }).catch(() => { $('#lista').innerHTML = '<p class="vacio">No pudimos cargar los vinos. Probá de nuevo en unos minutos.</p>'; });
 
     function lista() {
       const q = $('#q').value.toLowerCase().trim(), b = $('#bod').value;
-      const items = P.filter(p => (q || p.cat === cat) && (!b || p.bod === b) && (!q || (p.nom + p.bod + p.var).toLowerCase().includes(q)));
+      const esPromo = cat === 'PROMOS';
+      const items = P.filter(p => {
+        if (q) return (p.nom + p.bod + p.var + p.cat).toLowerCase().includes(q);
+        if (esPromo) return (p.pc > 0 && p.pp > 0) && (!b || p.bod === b);
+        return p.cat === cat && (!b || p.bod === b);
+      });
       let h = '', last = '';
       items.forEach(p => {
-        const g = q ? p.cat + p.bod : p.bod;
-        if (g !== last) { h += `<h3>${esc(p.bod)}${q ? ' · ' + esc(p.cat) : ''}</h3>`; last = g; }
+        const g = q || esPromo ? p.cat + ' · ' + p.bod : p.bod;
+        if (g !== last) { h += `<h3>${esc(p.bod)}${(q || esPromo) ? ' · ' + esc(p.cat) : ''}</h3>`; last = g; }
         const n = cart[p.k] || 0, k = esc(p.k);
-        h += `<div class="row"><span class="b" style="color:${color(p.cat)}">${BOTELLA}</span>
+        const foto = getImgUrl(p.img);
+        const media = foto 
+          ? `<img src="${esc(foto)}" alt="${esc(p.nom)}" class="foto" loading="lazy" onerror="this.outerHTML='${BOTELLA}'">`
+          : BOTELLA;
+        h += `<div class="row"><span class="b" style="color:${color(p.cat)}">${media}</span>
       <div><div class="nom">${esc(p.nom)}</div><div class="sub">${esc(p.var)}</div>
       <div class="tags"><span>${p.ml} ml</span>${p.ml < 500 ? '<span>Media botella</span>' : ''}${p.pc ? `<span class="promo">Llevá ${p.pc} por ${money(p.pp)}</span>` : ''}</div></div>
       <div class="der"><div class="pre">${money(p.pre)}</div><small>por botella</small>
       ${n ? `<div class="st"><button data-k="${k}" data-d="-1" aria-label="Quitar uno">−</button><b>${n}</b><button data-k="${k}" data-d="1" aria-label="Agregar uno">+</button></div>`
             : `<button class="add" data-k="${k}" data-d="1">Agregar</button>`}</div></div>`;
       });
-      $('#lista').innerHTML = h || '<p class="vacio">No encontramos vinos con esa búsqueda. Probá con otro nombre o varietal.</p>';
+      $('#lista').innerHTML = h || `<p class="vacio">${esPromo ? 'No hay promociones activas por el momento.' : 'No encontramos vinos con esa búsqueda. Probá con otro nombre o varietal.'}</p>`;
     }
 
     function calc() {
@@ -449,8 +571,21 @@
       const { lineas, desc, total, u } = calc();
       if (!u) { $('#drawer').classList.remove('on'); return; }
       $('#sheet').innerHTML = `<h2>Tu pedido</h2>
-    ${lineas.map(([p, n]) => `<div class="li"><span>${n} x ${esc(p.nom)}${p.ml !== 750 ? ' (' + p.ml + ' ml)' : ''}</span><span>${money(n * p.pre)}</span></div>
-    `).join('')}
+    ${lineas.map(([p, n]) => `<div class="li">
+      <div class="li-info">
+        <b>${esc(p.nom)}</b>
+        <small>${p.ml !== 750 ? '(' + p.ml + ' ml) · ' : ''}${money(p.pre)} c/u</small>
+      </div>
+      <div class="li-actions">
+        <div class="st st-sm">
+          <button data-k="${esc(p.k)}" data-d="-1" aria-label="Quitar uno">−</button>
+          <b>${n}</b>
+          <button data-k="${esc(p.k)}" data-d="1" aria-label="Agregar uno">+</button>
+        </div>
+        <span class="li-sub">${money(n * p.pre)}</span>
+        <button class="del" data-del="${esc(p.k)}" title="Eliminar" aria-label="Eliminar producto">✕</button>
+      </div>
+    </div>`).join('')}
     ${desc.map(d => `<div class="li d"><span>${esc(d[0])}</span><span>−${money(d[1])}</span></div>`).join('')}
     <div class="tot"><span>Total</span><span>${money(total)}</span></div>
     <label for="nombre">Tu nombre</label><input id="nombre" autocomplete="name">
@@ -474,11 +609,18 @@
     document.addEventListener('click', e => {
       const t = e.target.closest('button, #drawer');
       if (!t) return;
-      if (t.dataset.k) {
+      if (t.dataset.del) {
+        delete cart[t.dataset.del];
+        pintar();
+      } else if (t.dataset.k) {
         const n = (cart[t.dataset.k] || 0) + +t.dataset.d;
         if (n > 0) cart[t.dataset.k] = n; else delete cart[t.dataset.k];
         pintar();
-      } else if (t.dataset.cat) { cat = t.dataset.cat; $('#q').value = ''; pintar(); }
+      } else if (t.dataset.cat) { 
+        cat = t.dataset.cat; 
+        $('#q').value = ''; 
+        pintar(); 
+      }
       else if (t.id === 'bar') abrir();
       else if (t.id === 'enviar') enviar();
       else if (t.id === 'cerrar' || t.id === 'drawer') $('#drawer').classList.remove('on');
