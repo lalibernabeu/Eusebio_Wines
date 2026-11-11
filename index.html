@@ -290,7 +290,8 @@
       gap: 14px;
       align-items: center;
       padding: 14px 0;
-      border-bottom: 1px solid var(--linea)
+      border-bottom: 1px solid var(--linea);
+      cursor: pointer
     }
 
     .b {
@@ -656,6 +657,94 @@
       padding: 12px;
       cursor: pointer
     }
+
+    /* Modal Info / WhatsApp */
+    .modal-info {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(31, 31, 31, .65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100
+    }
+
+    .modal-info.on {
+      display: flex
+    }
+
+    .modal-info-sheet {
+      background: var(--marfil);
+      color: var(--carbon);
+      width: 100%;
+      max-width: 380px;
+      border-radius: 16px;
+      padding: 28px 22px 20px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, .35);
+      border: 1px solid rgba(90, 30, 43, .15)
+    }
+
+    .modal-info-icon {
+      font-size: 34px;
+      margin-bottom: 8px;
+      line-height: 1
+    }
+
+    .modal-info-sheet h2 {
+      font: 500 22px var(--serif);
+      color: var(--bordo);
+      margin: 0 0 10px;
+      letter-spacing: .02em;
+      line-height: 1.25
+    }
+
+    .modal-info-sheet p {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #3f3f3f;
+      margin: 0 0 22px
+    }
+
+    .modal-info-btn-wa {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 13px 18px;
+      background: #25D366;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, .3);
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      transition: background .15s, transform .1s
+    }
+
+    .modal-info-btn-wa:hover,
+    .modal-info-btn-wa:active {
+      background: #1eb956;
+      transform: scale(.99)
+    }
+
+    .modal-info-btn-back {
+      background: none;
+      border: 0;
+      color: var(--oliva);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 16px;
+      text-decoration: underline;
+      width: 100%
+    }
   </style>
 </head>
 
@@ -781,6 +870,21 @@
   <button id="bar"></button>
   <div class="drawer" id="drawer">
     <div class="sheet" id="sheet"></div>
+  </div>
+
+  <div class="modal-info" id="modalInfo" role="dialog" aria-modal="true" aria-labelledby="modalInfoTitle">
+    <div class="modal-info-sheet">
+      <div class="modal-info-icon">🍷</div>
+      <h2 id="modalInfoTitle">¿Querés más información?</h2>
+      <p id="modalInfoDesc">Para conocer más sobre este vino, notas de cata o asesoramiento personalizado, escribinos directamente por WhatsApp.</p>
+      <a href="#" id="modalInfoWa" target="_blank" rel="noopener" class="modal-info-btn-wa">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19.01L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/>
+        </svg>
+        <span>Consultar por WhatsApp</span>
+      </a>
+      <button type="button" class="modal-info-btn-back" id="modalInfoBack">Volver atrás</button>
+    </div>
   </div>
 
   <script>
@@ -944,24 +1048,84 @@
       window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(m)}`, '_blank');
     }
 
-    document.addEventListener('click', e => {
-      const t = e.target.closest('button, #drawer');
-      if (!t) return;
-      if (t.dataset.del) {
-        delete cart[t.dataset.del];
-        pintar();
-      } else if (t.dataset.k) {
-        const n = (cart[t.dataset.k] || 0) + +t.dataset.d;
-        if (n > 0) cart[t.dataset.k] = n; else delete cart[t.dataset.k];
-        pintar();
-      } else if (t.dataset.cat) {
-        cat = t.dataset.cat;
-        $('#q').value = '';
-        pintar();
+    function abrirInfoModal(vino) {
+      const modal = $('#modalInfo');
+      const title = $('#modalInfoTitle');
+      const desc = $('#modalInfoDesc');
+      const waBtn = $('#modalInfoWa');
+      if (vino) {
+        title.textContent = vino;
+        desc.textContent = `Para conocer más sobre ${vino}, notas de cata o asesoramiento personalizado, escribinos directamente por WhatsApp.`;
+        waBtn.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hola! Quisiera más información sobre ' + vino)}`;
+      } else {
+        title.textContent = '¿Querés más información?';
+        desc.textContent = 'Para más información sobre nuestros vinos o asesoramiento personalizado, escribinos directamente por WhatsApp.';
+        waBtn.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hola! Quisiera hacerles una consulta sobre los vinos')}`;
       }
-      else if (t.id === 'bar') abrir();
-      else if (t.id === 'enviar') enviar();
-      else if (t.id === 'cerrar' || t.id === 'drawer') $('#drawer').classList.remove('on');
+      modal.classList.add('on');
+    }
+
+    function cerrarInfoModal() {
+      $('#modalInfo').classList.remove('on');
+    }
+
+    document.addEventListener('click', e => {
+      // 1. Manejo del modal de info WhatsApp
+      if (e.target.closest('#modalInfoBack') || e.target.id === 'modalInfo') {
+        cerrarInfoModal();
+        return;
+      }
+      if (e.target.closest('#modalInfoWa')) {
+        cerrarInfoModal();
+        return;
+      }
+
+      // 2. Manejo del carrito (drawer)
+      const drawer = $('#drawer');
+      if (e.target.closest('#cerrar') || e.target === drawer) {
+        drawer.classList.remove('on');
+        return;
+      }
+      if (drawer.classList.contains('on')) {
+        const btn = e.target.closest('button');
+        if (!btn) return; // Permite hacer click en inputs/selects del carrito sin cerrarlo
+        if (btn.dataset.del) {
+          delete cart[btn.dataset.del];
+          pintar();
+        } else if (btn.dataset.k) {
+          const n = (cart[btn.dataset.k] || 0) + +btn.dataset.d;
+          if (n > 0) cart[btn.dataset.k] = n; else delete cart[btn.dataset.k];
+          pintar();
+        } else if (btn.id === 'enviar') {
+          enviar();
+        }
+        return;
+      }
+
+      // 3. Botones fuera del carrito
+      const t = e.target.closest('button');
+      if (t) {
+        if (t.id === 'bar') {
+          abrir();
+        } else if (t.dataset.k) {
+          const n = (cart[t.dataset.k] || 0) + +t.dataset.d;
+          if (n > 0) cart[t.dataset.k] = n; else delete cart[t.dataset.k];
+          pintar();
+        } else if (t.dataset.cat) {
+          cat = t.dataset.cat;
+          $('#q').value = '';
+          pintar();
+        }
+        return;
+      }
+
+      // 4. Elementos interactivos nativos (input buscador, select bodega, links)
+      if (e.target.closest('input, select, a')) return;
+
+      // 5. Clic en cualquier parte sin botones (ej. nombre del vino, foto, etc.)
+      const row = e.target.closest('.row');
+      const vino = row && row.querySelector('.nom') ? row.querySelector('.nom').textContent : '';
+      abrirInfoModal(vino);
     });
     $('#q').addEventListener('input', pintar);
     $('#bod').addEventListener('change', function () {
