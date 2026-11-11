@@ -7,7 +7,6 @@
   <title>Eusebio Wines · Catálogo de vinos</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="icon" type="image/svg" href="/favicon.svg">
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@400;500&display=swap"
     rel="stylesheet">
@@ -136,8 +135,7 @@
       text-align: left;
       box-shadow: 0 1px 3px rgba(42, 38, 35, .03)
     }
-      box-shadow: 0 1px 3px rgba(42, 38, 35, .03)
-    }
+
 
     .ben-icon {
       width: 32px;
@@ -798,7 +796,7 @@
       cat = P[0].cat;
       const cats = [...new Set(P.map(p => p.cat))];
       const hayPromos = P.some(p => p.pc > 0 && p.pp > 0);
-      const promoBtn = hayPromos ? `<button data-cat="PROMOS" class="tab-promo">🔥 Promos</button>` : '';
+      const promoBtn = hayPromos ? `<button data-cat="PROMOS" class="tab-promo">Promos</button>` : '';
       $('#tabs').innerHTML = promoBtn + cats.map(c => `<button data-cat="${esc(c)}">${esc(c)}</button>`).join('');
       $('#bod').innerHTML = '<option value="">Todas las bodegas</option>' + [...new Set(P.map(p => p.bod))].map(b => `<option>${esc(b)}</option>`).join('');
       pintar();
