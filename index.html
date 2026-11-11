@@ -340,7 +340,14 @@
     }
 
     .nom {
-      font: 400 19px/1.2 var(--serif)
+      font: 400 19px/1.2 var(--serif);
+      cursor: pointer;
+      display: inline-block;
+      transition: color .15s ease
+    }
+
+    .nom:hover {
+      color: var(--bordo)
     }
 
     .sub {
@@ -1000,12 +1007,12 @@
     let P = [], cat = '', cart = {};
     try { cart = JSON.parse(localStorage.getItem('eusebio-pedido') || '{}'); } catch (e) { }
 
-    function getImgUrl(url) {
+    function getImgUrl(url, size = 400) {
       if (!url) return '';
       url = url.trim();
       const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (m) {
-        return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`;
+        return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w${size}`;
       }
       return url;
     }
@@ -1060,12 +1067,14 @@
           last = g;
         }
         const n = cart[p.k] || 0, k = esc(p.k);
-        const foto = getImgUrl(p.img);
+        const foto = getImgUrl(p.img, 400);
+        const fotoLg = getImgUrl(p.img, 1200);
+        const col = color(p.cat);
         const media = foto
           ? `<img src="${esc(foto)}" alt="${esc(p.nom)}" class="foto" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="botella-svg" style="display:none">${BOTELLA}</span>`
           : `<span class="botella-svg">${BOTELLA}</span>`;
-        h += `<div class="row"><span class="b" style="color:${color(p.cat)}">${media}</span>
-      <div><div class="nom">${esc(p.nom)}</div><div class="sub">${esc(p.var)}</div>
+        h += `<div class="row"><span class="b" data-img-zoom="${esc(fotoLg)}" data-nom="${esc(p.nom)}" data-col="${esc(col)}" style="color:${col}" title="Tocar para ampliar imagen">${media}</span>
+      <div><div class="nom" title="Consultar por este vino">${esc(p.nom)}</div><div class="sub">${esc(p.var)}</div>
       ${p.notas ? `<div class="notas">🍷 ${esc(p.notas)}</div>` : ''}
       <div class="tags"><span>${p.ml} ml</span>${p.ml < 500 ? '<span>Media botella</span>' : ''}${p.pc ? `<span class="promo">Llevá ${p.pc} por ${money(p.pp)}</span>` : ''}</div></div>
       <div class="der"><div class="pre">${money(p.pre)}</div><small>por botella</small>
@@ -1167,8 +1176,33 @@
       $('#modalInfo').classList.remove('on');
     }
 
+    function abrirZoomModal(bEl) {
+      const zoomUrl = bEl.dataset.imgZoom;
+      const nom = bEl.dataset.nom || '';
+      const col = bEl.dataset.col || '#5A1E2B';
+      const wrap = $('#modalZoomWrap');
+      const title = $('#modalZoomTitle');
+      title.textContent = nom;
+      if (zoomUrl) {
+        wrap.innerHTML = `<img src="${esc(zoomUrl)}" alt="${esc(nom)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span style="display:none;color:${esc(col)}" class="botella-svg-lg">${BOTELLA}</span>`;
+      } else {
+        wrap.innerHTML = `<span style="color:${esc(col)}" class="botella-svg-lg">${BOTELLA}</span>`;
+      }
+      $('#modalZoom').classList.add('on');
+    }
+
+    function cerrarZoomModal() {
+      $('#modalZoom').classList.remove('on');
+    }
+
     document.addEventListener('click', e => {
-      // 1. Manejo del modal de info WhatsApp
+      // 1. Manejo del modal de zoom de imagen
+      if (e.target.closest('#modalZoomClose') || e.target.id === 'modalZoom') {
+        cerrarZoomModal();
+        return;
+      }
+
+      // 2. Manejo del modal de info WhatsApp
       if (e.target.closest('#modalInfoBack') || e.target.id === 'modalInfo') {
         cerrarInfoModal();
         return;
@@ -1178,7 +1212,7 @@
         return;
       }
 
-      // 2. Manejo del carrito (drawer)
+      // 3. Manejo del carrito (drawer)
       const drawer = $('#drawer');
       if (e.target.closest('#cerrar') || e.target === drawer) {
         drawer.classList.remove('on');
@@ -1200,7 +1234,7 @@
         return;
       }
 
-      // 3. Botones fuera del carrito
+      // 4. Botones fuera del carrito
       const t = e.target.closest('button');
       if (t) {
         if (t.id === 'bar') {
@@ -1217,13 +1251,29 @@
         return;
       }
 
-      // 4. Elementos interactivos nativos (input buscador, select bodega, links)
-      if (e.target.closest('input, select, a')) return;
+      // 5. Clic en la imagen del vino -> agrandar imagen
+      const imgBox = e.target.closest('.b');
+      if (imgBox) {
+        abrirZoomModal(imgBox);
+        return;
+      }
 
-      // 5. Clic en cualquier parte sin botones (ej. nombre del vino, foto, etc.)
-      const row = e.target.closest('.row');
-      const vino = row && row.querySelector('.nom') ? row.querySelector('.nom').textContent : '';
-      abrirInfoModal(vino);
+      // 6. Clic en el TÍTULO del vino -> abrir ventana emergente con info y WhatsApp
+      const nomEl = e.target.closest('.nom');
+      if (nomEl) {
+        abrirInfoModal(nomEl.textContent.trim());
+        return;
+      }
+
+      // 7. En cualquier otra parte (fondo, varietal, notas, tags, precios, etc.) -> NO HACE NADA (cero invasivo)
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        cerrarZoomModal();
+        cerrarInfoModal();
+        $('#drawer').classList.remove('on');
+      }
     });
     $('#q').addEventListener('input', pintar);
     $('#bod').addEventListener('change', function () {
