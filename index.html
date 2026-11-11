@@ -290,8 +290,12 @@
       gap: 14px;
       align-items: center;
       padding: 14px 0;
-      border-bottom: 1px solid var(--linea);
-      cursor: pointer
+      border-bottom: 1px solid var(--linea)
+    }
+
+    .vino-text {
+      cursor: pointer;
+      min-width: 0
     }
 
     .b {
@@ -306,7 +310,14 @@
       justify-content: center;
       padding: 3px;
       box-shadow: 0 1px 3px rgba(42, 38, 35, .04);
-      overflow: hidden
+      overflow: hidden;
+      cursor: zoom-in;
+      transition: transform .15s ease, box-shadow .15s ease
+    }
+
+    .b:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .08)
     }
 
     .b .botella-svg {
@@ -682,16 +693,10 @@
       width: 100%;
       max-width: 380px;
       border-radius: 16px;
-      padding: 28px 22px 20px;
+      padding: 30px 22px 22px;
       text-align: center;
       box-shadow: 0 20px 40px rgba(0, 0, 0, .35);
       border: 1px solid rgba(90, 30, 43, .15)
-    }
-
-    .modal-info-icon {
-      font-size: 34px;
-      margin-bottom: 8px;
-      line-height: 1
     }
 
     .modal-info-sheet h2 {
@@ -744,6 +749,92 @@
       padding: 8px 16px;
       text-decoration: underline;
       width: 100%
+    }
+
+    /* Modal Zoom Imagen */
+    .modal-zoom {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(15, 15, 15, .88);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 120;
+      cursor: zoom-out
+    }
+
+    .modal-zoom.on {
+      display: flex
+    }
+
+    .modal-zoom-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: default
+    }
+
+    .modal-zoom-close {
+      position: absolute;
+      top: -44px;
+      right: 0;
+      background: rgba(255, 255, 255, .15);
+      border: 0;
+      color: #fff;
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s
+    }
+
+    .modal-zoom-close:hover {
+      background: rgba(255, 255, 255, .3)
+    }
+
+    .modal-zoom-img-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-height: 72vh;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .5)
+    }
+
+    .modal-zoom-img-wrap img {
+      max-width: 80vw;
+      max-height: 68vh;
+      object-fit: contain;
+      border-radius: 6px;
+      display: block
+    }
+
+    .botella-svg-lg svg {
+      width: 70px;
+      height: 240px;
+      display: block
+    }
+
+    .modal-zoom-title {
+      color: var(--marfil);
+      margin: 14px 0 0;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: .05em;
+      text-align: center
     }
   </style>
 </head>
@@ -874,7 +965,6 @@
 
   <div class="modal-info" id="modalInfo" role="dialog" aria-modal="true" aria-labelledby="modalInfoTitle">
     <div class="modal-info-sheet">
-      <div class="modal-info-icon">🍷</div>
       <h2 id="modalInfoTitle">¿Querés más información?</h2>
       <p id="modalInfoDesc">Para conocer más sobre este vino, notas de cata o asesoramiento personalizado, escribinos directamente por WhatsApp.</p>
       <a href="#" id="modalInfoWa" target="_blank" rel="noopener" class="modal-info-btn-wa">
@@ -884,6 +974,14 @@
         <span>Consultar por WhatsApp</span>
       </a>
       <button type="button" class="modal-info-btn-back" id="modalInfoBack">Volver atrás</button>
+    </div>
+  </div>
+
+  <div class="modal-zoom" id="modalZoom" role="dialog" aria-modal="true" aria-label="Imagen ampliada del vino">
+    <div class="modal-zoom-content">
+      <button type="button" class="modal-zoom-close" id="modalZoomClose" aria-label="Cerrar imagen">✕</button>
+      <div class="modal-zoom-img-wrap" id="modalZoomWrap"></div>
+      <p class="modal-zoom-title" id="modalZoomTitle"></p>
     </div>
   </div>
 
