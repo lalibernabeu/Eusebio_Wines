@@ -110,25 +110,24 @@
     }
 
     .header-pill-bar {
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      margin-top: 18px;
-      padding: 7px 18px;
-      border: 1px solid rgba(247, 243, 234, .3);
-      border-radius: 20px;
-      font-size: 11px;
-      letter-spacing: .16em;
+      gap: clamp(5px, 1.5vw, 10px);
+      width: calc(100% + 40px);
+      margin: -44px -20px 24px;
+      padding: 8px 8px;
+      font-size: clamp(9px, 2.3vw, 11px);
+      letter-spacing: .08em;
       text-transform: uppercase;
-      color: var(--marfil);
-      background: rgba(247, 243, 234, .08);
-      font-weight: 500;
-      flex-wrap: wrap
+      color: var(--bordo);
+      background: var(--marfil);
+      font-weight: 600;
+      white-space: nowrap;
     }
 
     .header-pill-bar .sep {
-      opacity: .4
+      opacity: .45
     }
 
     .beneficios-bar {
@@ -662,6 +661,13 @@
 
 <body>
   <header>
+    <div class="header-pill-bar">
+      <span>Envíos</span>
+      <span class="sep">·</span>
+      <span>Vinos preseleccionados</span>
+      <span class="sep">·</span>
+      <span>Retiro por Mendoza</span>
+    </div>
     <div class="logo-wrap">
       <svg class="brand-iso" viewBox="0 0 500 500" fill="currentColor" aria-hidden="true">
         <g transform="translate(0,500) scale(0.1,-0.1)">
@@ -679,13 +685,7 @@
       <p class="origin">MENDOZA &nbsp;·&nbsp; ARGENTINA</p>
     </div>
     <em>Buenos vinos, grandes momentos.</em>
-    <div class="header-pill-bar">
-      <span>Envíos</span>
-      <span class="sep">·</span>
-      <span>Vinos preseleccionados</span>
-      <span class="sep">·</span>
-      <span>Retiro por Mendoza</span>
-    </div>
+
   </header>
 
 
@@ -833,7 +833,7 @@
       cat = 'TODOS';
       const cats = [...new Set(P.map(p => p.cat))];
       const hayPromos = P.some(p => p.pc > 0 && p.pp > 0);
-      const promoBtn = hayPromos ? `<button data-cat="PROMOS" class="tab-promo">🔥 Promos</button>` : '';
+      const promoBtn = hayPromos ? `<button data-cat="PROMOS" class="tab-promo">Promos</button>` : '';
       $('#tabs').innerHTML = `<button data-cat="TODOS">Todos</button>` + promoBtn + cats.map(c => `<button data-cat="${esc(c)}">${esc(c)}</button>`).join('');
       $('#bod').innerHTML = '<option value="">Todas las bodegas</option>' + [...new Set(P.map(p => p.bod))].map(b => `<option value="${esc(b)}">${esc(b)}</option>`).join('');
       pintar();
@@ -844,17 +844,17 @@
       const esPromo = cat === 'PROMOS';
       const esTodos = cat === 'TODOS';
       const items = P.filter(p => {
-        if (q) return (p.nom + p.bod + p.var + p.cat).toLowerCase().includes(q);
-        if (b) return p.bod === b;
+        if (q && !(p.nom + p.bod + p.var + p.cat).toLowerCase().includes(q)) return false;
+        if (b && p.bod !== b) return false;
         if (esPromo) return (p.pc > 0 && p.pp > 0);
         if (esTodos) return true;
         return p.cat === cat;
       });
       let h = '', last = '';
       items.forEach(p => {
-        const g = (b || esTodos || q) ? p.bod + ' · ' + p.cat : (esPromo ? p.cat + ' · ' + p.bod : p.bod);
+        const g = (esTodos || q || esPromo) ? p.bod + ' · ' + p.cat : p.bod;
         if (g !== last) {
-          h += `<h3>${esc(p.bod)}${(b || esTodos || q || esPromo) ? `<small style="font-size:12px;color:var(--oliva);font-weight:400;text-transform:none"> · ${esc(p.cat)}</small>` : ''}</h3>`;
+          h += `<h3>${esc(p.bod)}${(esTodos || q || esPromo) ? `<small style="font-size:12px;color:var(--oliva);font-weight:400;text-transform:none"> · ${esc(p.cat)}</small>` : ''}</h3>`;
           last = g;
         }
         const n = cart[p.k] || 0, k = esc(p.k);
@@ -870,7 +870,7 @@
       ${n ? `<div class="st"><button data-k="${k}" data-d="-1" aria-label="Quitar uno">−</button><b>${n}</b><button data-k="${k}" data-d="1" aria-label="Agregar uno">+</button></div>`
             : `<button class="add" data-k="${k}" data-d="1">Agregar</button>`}</div></div>`;
       });
-      $('#lista').innerHTML = h || `<p class="vacio">${b ? 'No se encontraron vinos para esta bodega.' : (esPromo ? 'No hay promociones activas por el momento.' : 'No encontramos vinos con esa búsqueda.')}</p>`;
+      $('#lista').innerHTML = h || `<p class="vacio">${b ? 'No se encontraron vinos para esta selección.' : (esPromo ? 'No hay promociones activas por el momento.' : 'No encontramos vinos con esa búsqueda.')}</p>`;
     }
 
     function calc() {
@@ -889,10 +889,9 @@
     }
 
     function pintar() {
-      const bSel = $('#bod').value;
       const qVal = $('#q').value;
       document.querySelectorAll('#tabs button').forEach(b => {
-        b.classList.toggle('on', !bSel && !qVal && b.dataset.cat === cat);
+        b.classList.toggle('on', !qVal && b.dataset.cat === cat);
       });
       lista();
       const { total, u } = calc(), bar = $('#bar');
@@ -958,7 +957,6 @@
       } else if (t.dataset.cat) {
         cat = t.dataset.cat;
         $('#q').value = '';
-        $('#bod').value = '';
         pintar();
       }
       else if (t.id === 'bar') abrir();
@@ -966,7 +964,11 @@
       else if (t.id === 'cerrar' || t.id === 'drawer') $('#drawer').classList.remove('on');
     });
     $('#q').addEventListener('input', pintar);
-    $('#bod').addEventListener('change', pintar);
+    $('#bod').addEventListener('change', function () {
+      if (this.value) cat = 'TODOS';
+      $('#q').value = '';
+      pintar();
+    });
   </script>
 </body>
 
