@@ -143,16 +143,19 @@
     }
 
     h3 {
-      font: 600 12px var(--sans);
-      letter-spacing: .2em;
-      color: var(--oliva);
-      margin: 26px 0 2px;
-      text-transform: uppercase
+      font: 600 16px var(--sans);
+      letter-spacing: .12em;
+      color: var(--bordo);
+      margin: 30px 0 6px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: baseline;
+      gap: 6px
     }
 
     .row {
       display: grid;
-      grid-template-columns: 44px 1fr auto;
+      grid-template-columns: 50px 1fr auto;
       gap: 14px;
       align-items: center;
       padding: 14px 0;
@@ -160,24 +163,37 @@
     }
 
     .b {
-      width: 44px;
-      height: 68px;
+      width: 50px;
+      height: 72px;
+      background: #ffffff;
+      border: 1px solid var(--linea);
+      border-radius: 6px;
       justify-self: center;
       display: flex;
       align-items: center;
-      justify-content: center
+      justify-content: center;
+      padding: 3px;
+      box-shadow: 0 1px 3px rgba(42, 38, 35, .04);
+      overflow: hidden
+    }
+
+    .b .botella-svg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%
     }
 
     .b svg {
-      width: 18px;
-      height: 62px
+      width: 16px;
+      height: 56px
     }
 
     .b .foto {
-      max-width: 44px;
-      max-height: 68px;
-      object-fit: contain;
-      border-radius: 3px
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain
     }
 
     .nom {
@@ -188,6 +204,14 @@
       font-size: 12px;
       color: var(--oliva);
       margin-top: 2px
+    }
+
+    .notas {
+      font-size: 11.5px;
+      color: var(--oliva);
+      font-style: italic;
+      margin-top: 3px;
+      line-height: 1.35
     }
 
     .tags {
@@ -266,7 +290,33 @@
       text-align: center;
       font-size: 12px;
       color: var(--oliva);
-      padding: 0 20px 110px
+      padding: 20px 20px 110px
+    }
+
+    .ig-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--bordo);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 13px;
+      margin-bottom: 12px;
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--linea);
+      background: var(--papel);
+      transition: all .2s
+    }
+
+    .ig-link:hover {
+      background: var(--bordo);
+      color: var(--crema);
+      border-color: var(--bordo)
+    }
+
+    .ig-link svg {
+      flex-shrink: 0
     }
 
     #bar {
@@ -453,7 +503,12 @@
     </div>
   </nav>
   <main id="lista"></main>
-  <footer>Precios por botella, en pesos argentinos · Retiro y envíos en Mendoza<br>Venta solo a mayores de 18 años
+  <footer>
+    <a href="https://instagram.com/eusebiowines" target="_blank" rel="noopener" class="ig-link">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+      <span>@eusebiowines en Instagram</span>
+    </a>
+    <div>Precios por botella, en pesos argentinos · Retiro y envíos en Mendoza<br>Venta solo a mayores de 18 años</div>
   </footer>
   <button id="bar"></button>
   <div class="drawer" id="drawer">
@@ -503,6 +558,7 @@
           pc: pc,
           pp: pp,
           img: c[10] || '',
+          notas: c[11] || '',
           k: (c[2] || '') + '|' + (c[4] || '')
         };
       }).filter(p => p.on && p.nom);
@@ -526,14 +582,18 @@
       let h = '', last = '';
       items.forEach(p => {
         const g = q || esPromo ? p.cat + ' · ' + p.bod : p.bod;
-        if (g !== last) { h += `<h3>${esc(p.bod)}${(q || esPromo) ? ' · ' + esc(p.cat) : ''}</h3>`; last = g; }
+        if (g !== last) { 
+          h += `<h3>${esc(p.bod)}${(q || esPromo) ? `<small style="font-size:12px;color:var(--oliva);font-weight:400;text-transform:none"> · ${esc(p.cat)}</small>` : ''}</h3>`; 
+          last = g; 
+        }
         const n = cart[p.k] || 0, k = esc(p.k);
         const foto = getImgUrl(p.img);
-        const media = foto 
-          ? `<img src="${esc(foto)}" alt="${esc(p.nom)}" class="foto" loading="lazy" onerror="this.outerHTML='${BOTELLA}'">`
-          : BOTELLA;
+        const media = foto
+          ? `<img src="${esc(foto)}" alt="${esc(p.nom)}" class="foto" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="botella-svg" style="display:none">${BOTELLA}</span>`
+          : `<span class="botella-svg">${BOTELLA}</span>`;
         h += `<div class="row"><span class="b" style="color:${color(p.cat)}">${media}</span>
       <div><div class="nom">${esc(p.nom)}</div><div class="sub">${esc(p.var)}</div>
+      ${p.notas ? `<div class="notas">🍷 ${esc(p.notas)}</div>` : ''}
       <div class="tags"><span>${p.ml} ml</span>${p.ml < 500 ? '<span>Media botella</span>' : ''}${p.pc ? `<span class="promo">Llevá ${p.pc} por ${money(p.pp)}</span>` : ''}</div></div>
       <div class="der"><div class="pre">${money(p.pre)}</div><small>por botella</small>
       ${n ? `<div class="st"><button data-k="${k}" data-d="-1" aria-label="Quitar uno">−</button><b>${n}</b><button data-k="${k}" data-d="1" aria-label="Agregar uno">+</button></div>`
@@ -616,10 +676,10 @@
         const n = (cart[t.dataset.k] || 0) + +t.dataset.d;
         if (n > 0) cart[t.dataset.k] = n; else delete cart[t.dataset.k];
         pintar();
-      } else if (t.dataset.cat) { 
-        cat = t.dataset.cat; 
-        $('#q').value = ''; 
-        pintar(); 
+      } else if (t.dataset.cat) {
+        cat = t.dataset.cat;
+        $('#q').value = '';
+        pintar();
       }
       else if (t.id === 'bar') abrir();
       else if (t.id === 'enviar') enviar();
