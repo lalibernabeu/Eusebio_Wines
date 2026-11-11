@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Eusebio Wines · Catálogo de vinos</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/svg" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@400;500&display=swap"
@@ -109,6 +109,28 @@
       color: var(--marfil)
     }
 
+    .header-pill-bar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+      padding: 7px 18px;
+      border: 1px solid rgba(247, 243, 234, .3);
+      border-radius: 20px;
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--marfil);
+      background: rgba(247, 243, 234, .08);
+      font-weight: 500;
+      flex-wrap: wrap
+    }
+
+    .header-pill-bar .sep {
+      opacity: .4
+    }
+
     .beneficios-bar {
       max-width: 760px;
       margin: 0 auto 28px;
@@ -186,7 +208,15 @@
       gap: 6px;
       overflow-x: auto;
       max-width: 760px;
-      margin: auto
+      margin: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0
     }
 
     .tabs button {
@@ -241,7 +271,7 @@
     main {
       max-width: 760px;
       margin: auto;
-      padding: 4px 16px 120px
+      padding: 4px 16px 14px
     }
 
     h3 {
@@ -392,7 +422,7 @@
       text-align: center;
       font-size: 12px;
       color: var(--oliva);
-      padding: 20px 20px 110px
+      padding: 10px 16px 85px
     }
 
     .ig-link {
@@ -649,6 +679,13 @@
       <p class="origin">MENDOZA &nbsp;·&nbsp; ARGENTINA</p>
     </div>
     <em>Buenos vinos, grandes momentos.</em>
+    <div class="header-pill-bar">
+      <span>Envíos</span>
+      <span class="sep">·</span>
+      <span>Vinos preseleccionados</span>
+      <span class="sep">·</span>
+      <span>Retiro por Mendoza</span>
+    </div>
   </header>
 
 
@@ -793,28 +830,31 @@
           k: (c[2] || '') + '|' + (c[4] || '')
         };
       }).filter(p => p.on && p.nom);
-      cat = P[0].cat;
+      cat = 'TODOS';
       const cats = [...new Set(P.map(p => p.cat))];
       const hayPromos = P.some(p => p.pc > 0 && p.pp > 0);
-      const promoBtn = hayPromos ? `<button data-cat="PROMOS" class="tab-promo">Promos</button>` : '';
-      $('#tabs').innerHTML = promoBtn + cats.map(c => `<button data-cat="${esc(c)}">${esc(c)}</button>`).join('');
-      $('#bod').innerHTML = '<option value="">Todas las bodegas</option>' + [...new Set(P.map(p => p.bod))].map(b => `<option>${esc(b)}</option>`).join('');
+      const promoBtn = hayPromos ? `<button data-cat="PROMOS" class="tab-promo">🔥 Promos</button>` : '';
+      $('#tabs').innerHTML = `<button data-cat="TODOS">Todos</button>` + promoBtn + cats.map(c => `<button data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+      $('#bod').innerHTML = '<option value="">Todas las bodegas</option>' + [...new Set(P.map(p => p.bod))].map(b => `<option value="${esc(b)}">${esc(b)}</option>`).join('');
       pintar();
     }).catch(() => { $('#lista').innerHTML = '<p class="vacio">No pudimos cargar los vinos. Probá de nuevo en unos minutos.</p>'; });
 
     function lista() {
       const q = $('#q').value.toLowerCase().trim(), b = $('#bod').value;
       const esPromo = cat === 'PROMOS';
+      const esTodos = cat === 'TODOS';
       const items = P.filter(p => {
         if (q) return (p.nom + p.bod + p.var + p.cat).toLowerCase().includes(q);
-        if (esPromo) return (p.pc > 0 && p.pp > 0) && (!b || p.bod === b);
-        return p.cat === cat && (!b || p.bod === b);
+        if (b) return p.bod === b;
+        if (esPromo) return (p.pc > 0 && p.pp > 0);
+        if (esTodos) return true;
+        return p.cat === cat;
       });
       let h = '', last = '';
       items.forEach(p => {
-        const g = q || esPromo ? p.cat + ' · ' + p.bod : p.bod;
+        const g = (b || esTodos || q) ? p.bod + ' · ' + p.cat : (esPromo ? p.cat + ' · ' + p.bod : p.bod);
         if (g !== last) {
-          h += `<h3>${esc(p.bod)}${(q || esPromo) ? `<small style="font-size:12px;color:var(--oliva);font-weight:400;text-transform:none"> · ${esc(p.cat)}</small>` : ''}</h3>`;
+          h += `<h3>${esc(p.bod)}${(b || esTodos || q || esPromo) ? `<small style="font-size:12px;color:var(--oliva);font-weight:400;text-transform:none"> · ${esc(p.cat)}</small>` : ''}</h3>`;
           last = g;
         }
         const n = cart[p.k] || 0, k = esc(p.k);
@@ -830,7 +870,7 @@
       ${n ? `<div class="st"><button data-k="${k}" data-d="-1" aria-label="Quitar uno">−</button><b>${n}</b><button data-k="${k}" data-d="1" aria-label="Agregar uno">+</button></div>`
             : `<button class="add" data-k="${k}" data-d="1">Agregar</button>`}</div></div>`;
       });
-      $('#lista').innerHTML = h || `<p class="vacio">${esPromo ? 'No hay promociones activas por el momento.' : 'No encontramos vinos con esa búsqueda. Probá con otro nombre o varietal.'}</p>`;
+      $('#lista').innerHTML = h || `<p class="vacio">${b ? 'No se encontraron vinos para esta bodega.' : (esPromo ? 'No hay promociones activas por el momento.' : 'No encontramos vinos con esa búsqueda.')}</p>`;
     }
 
     function calc() {
@@ -849,7 +889,11 @@
     }
 
     function pintar() {
-      document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.cat === cat && !$('#q').value));
+      const bSel = $('#bod').value;
+      const qVal = $('#q').value;
+      document.querySelectorAll('#tabs button').forEach(b => {
+        b.classList.toggle('on', !bSel && !qVal && b.dataset.cat === cat);
+      });
       lista();
       const { total, u } = calc(), bar = $('#bar');
       bar.className = u ? 'on' : '';
@@ -914,6 +958,7 @@
       } else if (t.dataset.cat) {
         cat = t.dataset.cat;
         $('#q').value = '';
+        $('#bod').value = '';
         pintar();
       }
       else if (t.id === 'bar') abrir();
