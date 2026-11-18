@@ -53,7 +53,7 @@ header {
 }
 
 header h1 {
-  font: 400 clamp(38px, 9vw, 50px) var(--serif);
+  font: 500 clamp(32px, 8vw, 44px) var(--sans);
   letter-spacing: .35em;
   margin: 0;
   padding-left: .35em;
@@ -234,24 +234,35 @@ nav {
   font-weight: 600;
 }
 
-.tabs button.tab-promo.on {
-  background: var(--bordo);
-  color: var(--crema);
-}
-
 .filtros {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   max-width: 760px;
   margin: 8px auto 0;
+}
+
+.filtros input {
+  flex: 1 1 100%;
+}
+
+.filtros select {
+  flex: 1 1 calc(50% - 4px);
+}
+
+@media (min-width: 640px) {
+  .filtros input {
+    flex: 2 1 200px;
+  }
+  .filtros select {
+    flex: 1 1 140px;
+  }
 }
 
 .filtros input,
 .filtros select,
 .sheet input,
 .sheet select {
-  flex: 1;
-  min-width: 0;
   padding: 9px 11px;
   border: 1px solid var(--linea);
   background: var(--papel);
@@ -425,6 +436,31 @@ h3 {
   text-align: center;
   color: var(--oliva);
   padding: 40px 0;
+}
+
+.b.b-combo {
+  width: 64px;
+}
+
+.combo-vinos {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--oliva);
+  line-height: 1.4;
+}
+
+.combo-vinos .combo-vino-item {
+  display: block;
+}
+
+.seccion-header {
+  font: 600 15px var(--sans);
+  letter-spacing: .1em;
+  color: var(--bordo);
+  margin: 32px 0 10px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--linea);
+  padding-bottom: 6px;
 }
 
 /* ==========================================================================
@@ -698,7 +734,7 @@ footer {
 
 .modal-info-sheet {
   background: var(--marfil);
-  color: var(--carbon);
+  color: var(--tinta);
   width: 100%;
   max-width: 380px;
   border-radius: 16px;
@@ -848,3 +884,4 @@ footer {
   letter-spacing: .05em;
   text-align: center;
 }
+
