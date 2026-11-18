@@ -236,6 +236,10 @@ nav {
   font-weight: 600;
 }
 
+.tabs button.tab-promo.on {
+  color: var(--crema) !important;
+}
+
 .filtros {
   display: flex;
   flex-wrap: wrap;

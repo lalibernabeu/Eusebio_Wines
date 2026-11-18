@@ -17,7 +17,7 @@ const COLORES = { tinto: '#5A1E2B', blanco: '#5B624F', rosado: '#C87D8A', espuma
 const color = c => (Object.entries(COLORES).find(([k]) => norm(c).startsWith(k)) || [0, '#5A1E2B'])[1];
 const BOTELLA = '<svg viewBox="0 0 16 56" aria-hidden="true"><path d="M6 0h4v14c0 4 5 7 5 14v26a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V28c0-7 5-10 5-14z" fill="currentColor"/></svg>';
 
-const ORDEN_CATS = { 'tintos': 1, 'blancos': 2, 'rosados': 3, 'espumantes': 4, 'generosos': 5 };
+const ORDEN_CATS = { 'blancos': 1, 'tintos': 2, 'espumantes': 3, 'rosados': 4, 'generosos': 5 };
 const pesoCat = c => ORDEN_CATS[norm(c)] || 99;
 
 /* ===== ESTADO DE LA APLICACIÓN ===== */
@@ -303,7 +303,8 @@ function lista() {
       if (!orden) {
         const g = (esTodos || q) ? (p.bod + ' · ' + p.cat) : p.bod;
         if (g !== last) {
-          h += `<h3>${esc(p.bod)}${(esTodos || q) ? `<small style="font-size:12px;color:var(--oliva);font-weight:400;text-transform:none"> · ${esc(p.cat)}</small>` : ''}</h3>`;
+          const titulo = (esTodos || q) ? `${esc(p.bod)} · ${esc(p.cat)}` : esc(p.bod);
+          h += `<h3>${titulo}</h3>`;
           last = g;
         }
       }
