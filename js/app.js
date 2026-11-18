@@ -5,7 +5,7 @@
 /* ===== CONFIGURACIÓN ===== */
 const WHATSAPP = '5492615668893'; // código de país + área + número, sin + ni espacios
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8rOJx8MT8QXcsT8ZF0yCO9CdY4Ovw0oLNNl086-ogn4MUFmySPfOPk_8T9nZsGEB0JxeghFSTW1hm/pub?gid=587360108&single=true&output=csv'; // link CSV pestaña Productos
-const COMBOS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8rOJx8MT8QXcsT8ZF0yCO9CdY4Ovw0oLNNl086-ogn4MUFmySPfOPk_8T9nZsGEB0JxeghFSTW1hm/pub?gid=1780938970&single=true&output=csv'; // link CSV publicado de la pestaña Combos (vacío = usa combos.csv local)
+const COMBOS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8rOJx8MT8QXcsT8ZF0yCO9CdY4Ovw0oLNNl086-ogn4MUFmySPfOPk_8T9nZsGEB0JxeghFSTW1hm/pub?gid=1780938970&single=true&output=csv'; // link CSV pestaña Combos publicada
 
 /* ===== UTILIDADES ===== */
 const $ = s => document.querySelector(s);
@@ -16,6 +16,9 @@ const norm = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(
 const COLORES = { tinto: '#5A1E2B', blanco: '#5B624F', rosado: '#C87D8A', espumante: '#8A7240', generoso: '#6B3F1D' };
 const color = c => (Object.entries(COLORES).find(([k]) => norm(c).startsWith(k)) || [0, '#5A1E2B'])[1];
 const BOTELLA = '<svg viewBox="0 0 16 56" aria-hidden="true"><path d="M6 0h4v14c0 4 5 7 5 14v26a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V28c0-7 5-10 5-14z" fill="currentColor"/></svg>';
+
+const ORDEN_CATS = { 'tintos': 1, 'blancos': 2, 'rosados': 3, 'espumantes': 4, 'generosos': 5 };
+const pesoCat = c => ORDEN_CATS[norm(c)] || 99;
 
 /* ===== ESTADO DE LA APLICACIÓN ===== */
 let P = [];         // Lista de vinos individuales
@@ -68,13 +71,11 @@ function parseCSV(text) {
 }
 
 /**
- * Verifica si un combo está activo y si todos sus vinos componentes tienen stock
+ * Verifica si todos los vinos que componen un combo existen y están activos en stock
  */
-function comboDisponible(c) {
-  if (!c.on || !c.nom || c.pre <= 0) return false;
+function comboVinosEnStock(c) {
   const requeridos = [c.v1, c.v2, c.v3].map(v => norm(v)).filter(Boolean);
   if (requeridos.length < 2) return false;
-  // Cada vino del combo debe existir y estar activo en el catálogo de productos
   return requeridos.every(req => P.some(p => norm(p.nom) === req && p.on));
 }
 
@@ -130,7 +131,7 @@ Promise.all([
     cat = 'TODOS';
     const cats = [...new Set(P.map(p => p.cat))];
     const hayPromosCant = P.some(p => p.pc > 0 && p.pp > 0);
-    const hayCombos = Combos.some(c => comboDisponible(c));
+    const hayCombos = Combos.some(c => c.on);
     const promoBtn = (hayPromosCant || hayCombos) ? `<button data-cat="PROMOS" class="tab-promo">Promos</button>` : '';
 
     $('#tabs').innerHTML = `<button data-cat="TODOS">Todos</button>` + promoBtn + cats.map(c => `<button data-cat="${esc(c)}">${esc(c)}</button>`).join('');
@@ -168,7 +169,7 @@ function renderItemVino(p, esTodos, q, esPromo) {
       <div class="pre">${money(p.pre)}</div>
       <small>por botella</small>
       ${n ? `<div class="st"><button data-k="${k}" data-d="-1" aria-label="Quitar uno">−</button><b>${n}</b><button data-k="${k}" data-d="1" aria-label="Agregar uno">+</button></div>`
-      : `<button class="add" data-k="${k}" data-d="1">Agregar</button>`}
+          : `<button class="add" data-k="${k}" data-d="1">Agregar</button>`}
     </div>
   </div>`;
 }
@@ -180,6 +181,7 @@ function renderItemCombo(c) {
   const col = 'var(--bordo)';
   const vinos = [c.v1, c.v2, c.v3].filter(Boolean);
   const cantBotellas = vinos.length;
+  const tieneStock = comboVinosEnStock(c);
 
   const media = foto
     ? `<img src="${esc(foto)}" alt="${esc(c.nom)}" class="foto" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="botella-svg" style="display:none">${BOTELLA}</span>`
@@ -194,14 +196,16 @@ function renderItemCombo(c) {
       </div>
       <div class="tags">
         <span>Combo x ${cantBotellas} botellas</span>
-        <span class="promo">Combo especial</span>
+        ${tieneStock ? '<span class="promo">Combo especial</span>' : '<span class="sin-stock">Vino sin stock</span>'}
       </div>
     </div>
     <div class="der">
       <div class="pre">${money(c.pre)}</div>
       <small>precio del combo</small>
-      ${n ? `<div class="st"><button data-k="${k}" data-d="-1" aria-label="Quitar uno">−</button><b>${n}</b><button data-k="${k}" data-d="1" aria-label="Agregar uno">+</button></div>`
-      : `<button class="add" data-k="${k}" data-d="1">Agregar combo</button>`}
+      ${tieneStock ? (
+        n ? `<div class="st"><button data-k="${k}" data-d="-1" aria-label="Quitar uno">−</button><b>${n}</b><button data-k="${k}" data-d="1" aria-label="Agregar uno">+</button></div>`
+          : `<button class="add" data-k="${k}" data-d="1">Agregar combo</button>`
+      ) : `<button class="add agotado" disabled title="Uno o más vinos de este combo están temporalmente agotados">Sin stock</button>`}
     </div>
   </div>`;
 }
@@ -228,12 +232,12 @@ function lista() {
   } else if (orden === 'desc') {
     itemsVinos.sort((x, y) => y.pre - x.pre);
   } else if (esTodos) {
-    // TAREA 2: Orden estable en TODOS por bodega (normalizada), luego varietal/categoría, luego nombre
+    // TAREA 2: Orden estable en TODOS por bodega (normalizada), luego por categoría (Tintos, Blancos, Rosados, Espumantes...), luego nombre
     itemsVinos.sort((x, y) => {
       const bComp = norm(x.bod).localeCompare(norm(y.bod));
       if (bComp !== 0) return bComp;
-      const vComp = norm(x.cat).localeCompare(norm(y.cat)) || norm(x.var).localeCompare(norm(y.var));
-      if (vComp !== 0) return vComp;
+      const cComp = pesoCat(x.cat) - pesoCat(y.cat);
+      if (cComp !== 0) return cComp;
       return norm(x.nom).localeCompare(norm(y.nom));
     });
   }
@@ -242,10 +246,9 @@ function lista() {
   let itemsCombos = [];
   if (esPromo) {
     itemsCombos = Combos.filter(c => {
-      if (!comboDisponible(c)) return false;
+      if (!c.on) return false;
       const vinosTexto = [c.nom, c.v1, c.v2, c.v3].join(' ').toLowerCase();
       if (q && !vinosTexto.includes(q)) return false;
-      // Si se filtró por bodega, verificar si algún vino del combo pertenece a dicha bodega
       if (b) {
         const vinosDelCombo = [norm(c.v1), norm(c.v2), norm(c.v3)].filter(Boolean);
         const coincideBod = P.some(p => norm(p.bod) === norm(b) && vinosDelCombo.includes(norm(p.nom)));
@@ -298,9 +301,9 @@ function lista() {
     let last = '';
     itemsVinos.forEach(p => {
       if (!orden) {
-        const g = esTodos ? p.bod : p.bod;
+        const g = (esTodos || q) ? (p.bod + ' · ' + p.cat) : p.bod;
         if (g !== last) {
-          h += `<h3>${esc(p.bod)}${esTodos ? `<small style="font-size:12px;color:var(--oliva);font-weight:400;text-transform:none"> · ${esc(p.cat)}</small>` : ''}</h3>`;
+          h += `<h3>${esc(p.bod)}${(esTodos || q) ? `<small style="font-size:12px;color:var(--oliva);font-weight:400;text-transform:none"> · ${esc(p.cat)}</small>` : ''}</h3>`;
           last = g;
         }
       }

@@ -53,7 +53,9 @@ header {
 }
 
 header h1 {
-  font: 500 clamp(32px, 8vw, 44px) var(--sans);
+  font-family: var(--sans) !important;
+  font-size: clamp(32px, 8vw, 44px);
+  font-weight: 600;
   letter-spacing: .35em;
   margin: 0;
   padding-left: .35em;
@@ -411,6 +413,20 @@ h3 {
   font-weight: 500;
   font-size: 12px;
   cursor: pointer;
+}
+
+.add:disabled,
+.add.agotado {
+  opacity: .5;
+  cursor: not-allowed;
+  border-color: #aaa;
+  color: #777;
+}
+
+.tags .sin-stock {
+  border-color: #d32f2f;
+  color: #d32f2f;
+  font-weight: 600;
 }
 
 .st {
